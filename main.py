@@ -2,8 +2,10 @@ import os, time, decimal
 
 # Clear Display
 def clear():
-    time.sleep(1)
+    time.sleep(.5)
     os.system('clear')
+
+clear()
 
 # Ask name of employee and hourly wage
 employee_name = input("Employee: ")
@@ -14,6 +16,7 @@ clear()
 def get_shift():
     # Create empty list
     shifts = []
+    
     # Ask for number of shifts worked
     shifts_worked = int(input("How many shifts did you work? "))
 
@@ -22,7 +25,7 @@ def get_shift():
         print(f'Shift {shift + 1}')
         hours_worked = int(input("Hours worked: "))
         shifts.append(hours_worked)
-    return shifts, hours_worked
+    return shifts
 
 def get_hours(shifts):
     # Calculate total hours worked
@@ -39,21 +42,24 @@ def get_hours(shifts):
         regular_hours = total_hours
     else:
         regular_hours = 40
-    return regular_hours, total_hours, overtime
+    worktime = {"regular": regular_hours, "ot": overtime, "total": total_hours}
+    return worktime
 
-clear()
-
-def calculate_pay(regular_hours, total_hours, overtime):
+def calculate_pay(worktime):
     # Calculate regular pay
-    regular_pay = regular_hours * hourly_wage
+    regular_pay = worktime["regular"] * hourly_wage
 
     # Calculate overtime pay
-    overtime_pay = overtime * (hourly_wage * 1.5)
+    overtime_pay = worktime["ot"] * (hourly_wage * 1.5)
 
     # Calculate gross pay
-    gross_pay = (total_hours * hourly_wage) + overtime_pay
+    gross_pay = (worktime["total"] * hourly_wage) + overtime_pay
 
-def display_summary(shifts, total_hours, regular_hours, overtime, regular_pay, overtime_pay, gross_pay):
+    pay = {"regular": regular_pay, "otpay": overtime_pay, "gross": gross_pay}
+    return pay
+
+def display_summary(shifts, worktime, pay):
+    clear()
     print("----- Weekly Summary -----")
     print()
 
@@ -63,19 +69,22 @@ def display_summary(shifts, total_hours, regular_hours, overtime, regular_pay, o
     print()
 
     # Display hours
-    print(f'Total hours: {total_hours}')
+    print(f'Total hours: {worktime["total"]}')
 
-    print(f'Regular hours: {regular_hours}')
-    print(f'Overtime hours: {overtime}')
+    print(f'Regular hours: {worktime["regular"]}')
+    print(f'Overtime hours: {worktime["ot"]}')
     print()
 
     # Display pay
-    print(f'Regular pay: ${regular_pay:,.2f}')
-    if overtime > 0:
-        print(f'Overtime pay: ${overtime_pay:,.2f}')
-    print(f'Gross pay: ${gross_pay:,.2f}')
+    print(f'Regular pay: ${pay["regular"]:,.2f}')
 
-get_shift(shifts)
-get_hours()
-calculate_pay()
-display_summary()
+    if worktime["ot"] > 0:
+        print(f'Overtime pay: ${pay["otpay"]:,.2f}')
+
+    print(f'Gross pay: ${pay["gross"]:,.2f}')
+
+# Call functions with appropriate parameters
+shifts = get_shift()
+worktime = get_hours(shifts)
+pay = calculate_pay(worktime)
+display_summary(shifts, worktime, pay)
